@@ -1,0 +1,175 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Basic user profile and roles",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["customer", "vendor", "admin"] },
+        "phoneNumber": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Vendor": {
+      "title": "Vendor",
+      "description": "Professional vendor identity and verification",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "businessName": { "type": "string" },
+        "location": { "type": "string" },
+        "verificationStatus": { "type": "string", "enum": ["pending", "verified", "rejected"] },
+        "nin": { "type": "string" },
+        "bankAccount": { "type": "object" },
+        "idDocumentUrl": { "type": "string" },
+        "salesCount": { "type": "number" },
+        "rating": { "type": "number" }
+      },
+      "required": ["userId", "businessName", "location", "verificationStatus"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Footwear item listing",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "brand": { "type": "string" },
+        "category": { "type": "string" },
+        "condition": { "type": "string", "enum": ["New", "Fairly Used"] },
+        "sizes": { "type": "array" },
+        "colors": { "type": "array" },
+        "price": { "type": "number" },
+        "deliveryFee": { "type": "number" },
+        "images": { "type": "array" },
+        "vendorId": { "type": "string" },
+        "vendorLocation": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "pending_approval", "rejected", "sold_out"] },
+        "isInstallmentEligible": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "price", "vendorId", "status"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Sales transaction record",
+      "type": "object",
+      "properties": {
+        "customerId": { "type": "string" },
+        "productId": { "type": "string" },
+        "vendorId": { "type": "string" },
+        "totalPrice": { "type": "number" },
+        "productPrice": { "type": "number" },
+        "deliveryFee": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["full", "installment"] },
+        "status": { "type": "string", "enum": ["pending", "paid", "shipped", "delivered", "cancelled"] },
+        "deliveryAddress": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["customerId", "productId", "totalPrice", "status"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Paystack payment transaction",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "orderId": { "type": "string" },
+        "amount": { "type": "number" },
+        "paymentType": { "type": "string", "enum": ["full", "installment"] },
+        "paystackReference": { "type": "string" },
+        "status": { "type": "string", "enum": ["success", "failed", "pending"] },
+        "paymentChannel": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "orderId", "amount", "paystackReference", "status"]
+    },
+    "WalletRecord": {
+      "title": "WalletRecord",
+      "description": "Internal payment record system",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "orderId": { "type": "string" },
+        "paymentId": { "type": "string" },
+        "transactionType": { "type": "string" },
+        "amount": { "type": "number" },
+        "description": { "type": "string" },
+        "status": { "type": "string" },
+        "balanceType": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "amount", "transactionType"]
+    },
+    "Installment": {
+      "title": "Installment",
+      "description": "Installment payment plan tracker",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "orderId": { "type": "string" },
+        "totalAmount": { "type": "number" },
+        "amountPaid": { "type": "number" },
+        "balanceRemaining": { "type": "number" },
+        "nextDueDate": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["active", "completed", "overdue"] }
+      },
+      "required": ["userId", "orderId", "totalAmount", "amountPaid", "status"]
+    },
+    "VendorPayout": {
+      "title": "VendorPayout",
+      "description": "Vendor settlement records",
+      "type": "object",
+      "properties": {
+        "vendorId": { "type": "string" },
+        "orderId": { "type": "string" },
+        "totalOrderAmount": { "type": "number" },
+        "platformCommission": { "type": "number" },
+        "deliveryFee": { "type": "number" },
+        "vendorAmount": { "type": "number" },
+        "payoutStatus": { "type": "string", "enum": ["pending", "paid", "cancelled"] },
+        "payoutDate": { "type": "string", "format": "date-time" }
+      },
+      "required": ["vendorId", "orderId", "vendorAmount", "payoutStatus"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "vendors/{vendorId}": {
+      "schema": "Vendor",
+      "description": "Vendor business profiles"
+    },
+    "products/{productId}": {
+      "schema": "Product",
+      "description": "Footwear listings"
+    },
+    "orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer orders"
+    },
+    "payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Payment transactions"
+    },
+    "wallet_records/{recordId}": {
+      "schema": "WalletRecord",
+      "description": "Internal wallet ledger"
+    },
+    "installment_plans/{planId}": {
+      "schema": "Installment",
+      "description": "Active installment plans"
+    },
+    "vendor_payouts/{payoutId}": {
+      "schema": "VendorPayout",
+      "description": "Vendor payout records"
+    }
+  }
+}
